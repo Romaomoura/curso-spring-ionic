@@ -8,7 +8,6 @@ import { JwtHelper } from "angular2-jwt";
 
 @Injectable()
 export class AuthService {
-
   jwtHelper: JwtHelper = new JwtHelper();
 
   constructor(public http: HttpClient, public storage: StorageService) {}
@@ -16,18 +15,31 @@ export class AuthService {
   authenticate(creds: CredenciaisDTO) {
     return this.http.post(`${API_CONFIG.baseURL}/login`, creds, {
       observe: "response",
-      responseType: "text",
+      responseType: "text"
     });
+  }
+
+  refreshToken() {
+    return this.http.post(
+      `${API_CONFIG.baseURL}/auth/refresh_token`,
+      {},
+      {
+        observe: "response",
+        responseType: "text"
+      }
+    );
   }
   successfullLogin(authorizationValue: string) {
     let tok = authorizationValue.substring(7);
     let user: LocalUser = {
       token: tok,
-      email: this.jwtHelper.decodeToken(tok).sub
+      email: this.jwtHelper.decodeToken(tok).sub,
     };
     this.storage.setLocalUser(user);
   }
+
   logout() {
     this.storage.setLocalUser(null);
   }
+
 }
