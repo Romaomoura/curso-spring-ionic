@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content padding>
-    <form [formGroup]="formGroup" (ngSubmit)="signupUser(); $event.preventDefault()">
+    <form [formGroup]="formGroup" (ngSubmit)="signupUser();">
         <ion-item>
             <ion-label stacked>Nome*</ion-label>
             <ion-input formControlName="nome" type="text"></ion-input>
@@ -16,7 +16,7 @@
             <ion-input formControlName="email" type="text"></ion-input>
         </ion-item>
         <p class="danger" *ngIf="formGroup.controls.email.dirty && formGroup.controls.email.errors" margin-left>Valor inválido</p>
-        <ion-list radio-group formControlName="tipo">
+        <ion-list radio-group formControlName="tipoCliente">
             <ion-list-header>
                 Tipo de cliente
             </ion-list-header>
