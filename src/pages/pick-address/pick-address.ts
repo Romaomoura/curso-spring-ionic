@@ -1,6 +1,8 @@
 import { Component } from "@angular/core";
 import { IonicPage, NavController, NavParams } from "ionic-angular";
 import { EnderecoDTO } from "../../models/endereco.dto";
+import { StorageService } from '../../services/storage.service';
+import { ClienteService } from '../../services/domain/cliente.service';
 
 @IonicPage()
 @Component({
@@ -10,42 +12,27 @@ import { EnderecoDTO } from "../../models/endereco.dto";
 export class PickAddressPage {
   items: EnderecoDTO[];
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {}
+  constructor(
+    public navCtrl: NavController,
+    public navParams: NavParams,
+    public storage: StorageService,
+    public clienteService: ClienteService) {}
 
   ionViewDidLoad() {
-    this.items = [
-      {
-        id: "1",
-        logradouro: "Rua todos os santos",
-        numero: "1020",
-        complemento: "Apartamento",
-        bairro: "centro",
-        cep: "63.000-020",
-        cidade: {
-          id: "1",
-          nome: "Juazeiro do norte",
-          estado: {
-            id: "1",
-            nome: "Ceará"
+    let localUser = this.storage.getLocalUser();
+    if (localUser && localUser.email) {
+      this.clienteService.findByEmail(localUser.email).subscribe(
+        (response) => {
+          this.items = response['enderecos'];
+        },
+        (error) => {
+          if(error.status == 403){
+            this.navCtrl.setRoot('HomePage');
           }
         }
-      },
-      {
-        id: "2",
-        logradouro: "Rua do Seminario",
-        numero: "1030",
-        complemento: "Casa",
-        bairro: "centro",
-        cep: "64.000-020",
-        cidade: {
-          id: "2",
-          nome: "Crato",
-          estado: {
-            id: "1",
-            nome: "Ceará"
-          }
-        }
-      }
-    ];
+      );
+    }else{
+      this.navCtrl.setRoot('HomePage');
+    }
   }
 }
