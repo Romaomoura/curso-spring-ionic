@@ -9,6 +9,10 @@ import { StorageService } from "../storage.service";
 export class ClienteService {
   constructor(public http: HttpClient, public storage: StorageService) {}
 
+  findById(id: string) {
+    return this.http.get(`${API_CONFIG.baseURL}/clientes/${id}`);
+  }
+
   findByEmail(email: string) {
     return this.http.get(`${API_CONFIG.baseURL}/clientes/email?value=${email}`);
   }
