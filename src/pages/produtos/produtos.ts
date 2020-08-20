@@ -12,7 +12,9 @@ import { LoadingController } from "ionic-angular/components/loading/loading-cont
   templateUrl: "produtos.html",
 })
 export class ProdutosPage {
-  items: ProdutoDTO[];
+
+  items: ProdutoDTO[] = [];
+  page: number = 0;
 
   constructor(
     public navCtrl: NavController,
@@ -30,9 +32,11 @@ export class ProdutosPage {
     let loader = this.presentLoading();
     this.produtoService.findByCategoria(categoria_id).subscribe(
       (response) => {
-        this.items = response["content"];
+        let start = this.items.length;
+        this.items = this.items.concat(response["content"]);
+        let end = this.items.length -1;
         loader.dismiss();
-        this.loadImageUrls();
+        this.loadImageUrls(start, end);
       },
       (error) => {
         loader.dismiss();
@@ -40,8 +44,8 @@ export class ProdutosPage {
     );
   }
 
-  loadImageUrls() {
-    for (var i = 0; i < this.items.length; i++) {
+  loadImageUrls(start: number, end: number) {
+    for (var i = start; i <= end; i++) {
       let item = this.items[i];
       this.produtoService
         .getSmallImageFromBucket(item.id)
@@ -62,9 +66,19 @@ export class ProdutosPage {
     return loader;
   }
   doRefresh(refresher){
+    this.page = 0;
+    this.items = [];
     this.loadData();
     setTimeout(()=> {
       refresher.complete();
+    }, 1000);
+  }
+
+  doInfinite(infiniteScroll) {
+    this.page++;
+    this.loadData();
+    setTimeout(() => {
+      infiniteScroll.complete();
     }, 1000);
   }
 }
