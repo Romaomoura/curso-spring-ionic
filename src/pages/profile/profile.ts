@@ -5,6 +5,7 @@ import { StorageService } from "../../services/storage.service";
 import { ClienteDTO } from "../../models/cliente.dto";
 import { ClienteService } from "../../services/domain/cliente.service";
 import { CameraOptions, Camera } from '@ionic-native/camera';
+import { DomSanitizer } from "@angular/platform-browser";
 
 @IonicPage()
 @Component({
@@ -14,6 +15,7 @@ import { CameraOptions, Camera } from '@ionic-native/camera';
 export class ProfilePage {
   cliente: ClienteDTO;
   picture: string;
+  profileImage;
   cameraOn: boolean = false;
 
   constructor(
@@ -21,8 +23,11 @@ export class ProfilePage {
     public navParams: NavParams,
     public storage: StorageService,
     public clienteService: ClienteService,
-    private camera: Camera
-  ) {}
+    private camera: Camera,
+    public sanitazer: DomSanitizer
+  ) {
+    this.profileImage = 'assets/imgs/profile.png';
+  }
 
   ionViewDidLoad() {
    this.loadData();
@@ -51,8 +56,14 @@ export class ProfilePage {
     this.clienteService.getImageFromBucket(this.cliente.id).subscribe(
       (response) => {
         this.cliente.imageUrl = `${API_CONFIG.bucketUrl}/cp${this.cliente.id}.jpg`;
+        this.blobToDataURL(response).then(dataUrl => {
+          let str : string = dataUrl as string;
+          this.profileImage = this.sanitazer.bypassSecurityTrustUrl(str);
+        })
       },
-      (error) => {}
+      (error) => {
+        this.profileImage = 'assets/imgs/profile.png';
+      }
     );
   }
   // https://gist.github.com/frumbert/3bf7a68ffa2ba59061bdcfc016add9ee
@@ -87,8 +98,7 @@ export class ProfilePage {
     this.clienteService.uploadPicture(this.picture)
       .subscribe(response => {
         this.picture = null;
-        this.loadData();
-        //this.getImageIfExists();
+        this.getImageIfExists();
       },
       error => {
       });
@@ -116,6 +126,4 @@ export class ProfilePage {
       this.cameraOn = false;
     });
   }
-
-
 }
